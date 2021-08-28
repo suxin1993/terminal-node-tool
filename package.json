@@ -1,0 +1,23 @@
+{
+    "name": "terminal-node-tool",
+    "version": "1.0.0",
+    "description": "a terminal cli",
+    "main": "index.js",
+    "bin": {
+        "tr": "./bin/translate.js",
+        "util": "./bin/util.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "suxin",
+    "license": "",
+    "dependencies": {
+        "colors": "^1.4.0",
+        "inquirer": "^8.1.2",
+        "say": "^0.16.0",
+        "shelljs": "^0.8.4",
+        "svgo": "^2.4.0",
+        "yargs": "^17.0.1"
+    }
+}
