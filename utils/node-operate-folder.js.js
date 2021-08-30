@@ -83,7 +83,7 @@ exports.readFile = async function(fileName) {
 
 
 //读取文件夹,获得文件夹中的文件列表
-exports.findSync = function(startPath) {
+let findSync = function(startPath) {
     const result = {};
 
     function finder(path) {
@@ -98,6 +98,7 @@ exports.findSync = function(startPath) {
     finder(startPath);
     return result;
 }
+exports.findSync = findSync
 
 /* 判断文件存在 */
 exports.isFileExisted = async function(path_way) {
@@ -185,17 +186,38 @@ exports.dirExists = async function(dir) {
  * 获取相对路径的文件名
  * @param {string} dir 路径
  */
-exports.pathBasename = function(dir) {
+let pathBasename = function(dir) {
     return paths.basename(dir)
 }
+exports.pathBasename = pathBasename
+
+/**
+ * 获取文件名除了后缀名以外名字
+ * @param {string} dir 路径
+ */
+exports.pathBasefilename = function(dir) {
+    let ext = paths.extname(paths.basename(dir))
+    return paths.basename(dir, ext)
+}
+/**
+ * 拼接路径
+ * @param {string} dir 路径
+ */
+exports.pathJoinDir = function(dir, dirTwo) {
+    return paths.join(dir, dirTwo)
+}
+
+
+
+
 /**
  * 文件扩展名
  * @param {string} flleName 文件名
  */
-exports.pathExtname = function(flleName) {
+let pathExtname = function(flleName) {
     return paths.extname(flleName)
 }
-
+exports.pathExtname = pathExtname
 
 /**
  * 获取某个相对路径下所有为某种扩展名的文件名
@@ -204,23 +226,14 @@ exports.pathExtname = function(flleName) {
  */
 
 exports.getbaseFiles = function(url, ext) {
-    fs.readdir(url, function(err, files) {
-        if (err) {
-            return console.error(err);
+    let list = findSync(url)
+    let extList = []
+    for (const key in list) {
+        if (pathExtname(pathBasename(key)) == `.${ext}`) {
+            extList.push(key)
         }
-        files.forEach(function(file) {
-            fs.stat(url + file, (err, stats) => {
-                if (stats.isFile()) {
-                    if (paths.extname(url + file) === ext) {
-                        console.log(paths.basename(file, ext))
-                    }
-                } else if (stats.isDirectory()) {
-                    getFile(url + file + '/', ext)
-                }
-            })
-
-        })
-    })
+    }
+    return extList
 }
 
 /**
