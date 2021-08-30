@@ -132,7 +132,7 @@ exports.asyncAlls = async function(filePath, fileDatas) {
     }
 }
 //创建文件夹
-exports.mkdirAsync = async function(_path) {
+let mkdirAsync = async function(_path) {
     return new Promise((res, rej) => {
         fs.mkdir(_path, (err) => {
             if (err) rej(err)
@@ -140,12 +140,13 @@ exports.mkdirAsync = async function(_path) {
         })
     })
 }
+exports.mkdirAsync = mkdirAsync
 
 /**
  * 读取路径信息
  * @param {string} path 路径
  */
-exports.getStat = async function(path) {
+let getStat = async function(path) {
     return new Promise((resolve, reject) => {
         fs.stat(path, (err, stats) => {
             if (err) {
@@ -156,6 +157,7 @@ exports.getStat = async function(path) {
         })
     })
 }
+exports.getStat = getStat
 
 
 
@@ -163,7 +165,7 @@ exports.getStat = async function(path) {
  * 路径是否存在，不存在则创建
  * @param {string} dir 路径
  */
-exports.dirExists = async function(dir) {
+let dirExists = async function(dir) {
     let isExists = await getStat(dir);
     //如果该路径且不是文件，返回true
     if (isExists && isExists.isDirectory()) {
@@ -181,6 +183,7 @@ exports.dirExists = async function(dir) {
     }
     return mkdirStatus;
 }
+exports.dirExists = dirExists
 
 /**
  * 获取相对路径的文件名
