@@ -1,0 +1,6 @@
+{
+    "folidPath": "getpicturelocation",
+    "GaodeKey": "7f775f82ccfdfddfefa4f77526d5555a",
+    "image_exts": " ['jpg', 'png', 'gif', 'jpeg', 'webp', 'tiff']",
+    "video_exts": " ['mp4', 'mov']"
+}
