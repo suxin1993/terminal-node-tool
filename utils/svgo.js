@@ -9,8 +9,8 @@
 
 const { optimize } = require('svgo');
 require("colors");
-const { resolvePath, exitsFolder, getbaseFiles, findSync, writeFileAsync, readFile } = require("./node-operate-folder.js")
-let filepath = resolvePath('./svg')
+const { pathJoinDir, exitsFolder, getbaseFiles, findSync, writeFileAsync, readFile } = require("./node-operate-folder.js")
+let filepath = pathJoinDir(__dirname,'../svg')
 
 
 
@@ -25,7 +25,7 @@ async function isPathSure() {
             throw "路径不存在"
         }
     } else {
-        console.log(`无参数，选择默认${process.cwd()}/svg文件夹下的文件`.bold.blue);
+        console.log(`无参数，选择默认${filepath}文件夹下的文件`.bold.blue);
     }
 }
 
@@ -38,7 +38,8 @@ async function svgo() {
         console.log(`路径下不存在svg文件`.bold.red);
         return '路径下不存在svg文件'
     } else {
-        await list.forEach(async (e) => {
+        for (let index = 0; index < list.length; index++) {
+            const e = list[index];
             let data = await readFile(e)
             const result = optimize(data, {
                 // optional but recommended field
@@ -48,7 +49,7 @@ async function svgo() {
             });
             await writeFileAsync(e, result.data)
             console.log(`${e}文件已经转化`.bold.blue);
-        })
+        }
         return '路径下的svg文件已经开始转化'
     }
 }

@@ -7,9 +7,10 @@
  * @FilePath: \getPictureLocation\gaodeLocation.js
  */
 const config = require('../lib/lib-photo.json');
-const https = require("https");
-//Gps坐标转为高德坐标
-var GPS = {
+
+const {getHttp,addUrlParams} =require("../http/http")
+//Gps坐标转为高德坐标(GPS坐标与火星坐标的转换)
+let GPS = {
     PI: 3.14159265358979324,
     x_pi: 3.14159265358979324 * 3000.0 / 180.0,
     delta: function(lat, lon) {
@@ -61,17 +62,61 @@ var GPS = {
         return ret;
     }
 };
-const ret = GPS.gcj_encrypt(26.734323, 112.669412); // 函数返回转换后的高德坐标
-https.get(`https://restapi.amap.com/v3/geocode/regeo?location=${ret.lon},${ret.lat}&key=${config.GaodeKey}`, resp => {
-    let data = {};
-    resp.on("data", function(chunk) {
-        data += chunk;
-        console.error(data)
-    });
-    resp.on("end", () => {
-        console.error(data)
-    });
-    resp.on("error", err => {
-        console.log(err.message);
-    });
-});
+exports.GPS=GPS
+      
+// 坐标转换 度°分′秒″转度
+function ToDigital(strDu, strFen, strMiao, len) {
+    len = (len > 6 || typeof(len) == "undefined") ? 6 : len; //精确到小数点后最多六位   
+    strDu = (typeof(strDu) == "undefined" || strDu == "") ? 0 : parseFloat(strDu);
+    strFen = (typeof(strFen) == "undefined" || strFen == "") ? 0 : parseFloat(strFen) / 60;
+    strMiao = (typeof(strMiao) == "undefined" || strMiao == "") ? 0 : parseFloat(strMiao) / 3600;
+    var digital = strDu + strFen + strMiao;
+    if (digital == 0) {
+        return "";
+    } else {
+        return digital.toFixed(len);
+    }
+}
+
+exports.ToDigital=ToDigital
+
+// 坐标转换 度转度°分′秒″
+function ToDegrees(val) {
+    if (typeof(val) == "undefined" || val == "") {
+        return "";
+    }
+    var i = val.indexOf('.');
+    var strDu = i < 0 ? val : val.substring(0, i); //获取度
+    var strFen = 0;
+    var strMiao = 0;
+    if (i > 0) {
+        var strFen = "0" + val.substring(i);
+        strFen = strFen * 60 + "";
+        i = strFen.indexOf('.');
+        if (i > 0) {
+            strMiao = "0" + strFen.substring(i);
+            strFen = strFen.substring(0, i); //获取分
+            strMiao = strMiao * 60 + "";
+            i = strMiao.indexOf('.');
+            strMiao = strMiao.substring(0, i + 4); //取到小数点后面三位
+            strMiao = parseFloat(strMiao).toFixed(2); //精确小数点后面两位
+        }
+    }
+    return strDu + "," + strFen + "," + strMiao;
+}
+exports.ToDegrees=ToDegrees
+
+let url = `https://restapi.amap.com/v3/geocode/regeo`
+async function getGaodeAdress(lon,lat) {
+     url   = addUrlParams(url,{
+        location:`${110.41967},${26.91667}`,
+        key:`${config.GaodeKey}`
+     })
+   const JSONLocation = await getHttp(url)
+   let JsonString = JSONLocation.substring(JSONLocation.indexOf(']') + 1, JSONLocation.length)
+   // 字符串截取
+   console.error(JsonString)
+   return  JSON.parse(JsonString)
+}
+
+exports.getGaodeAdress=getGaodeAdress
