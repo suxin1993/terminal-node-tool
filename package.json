@@ -14,15 +14,18 @@
     "license": "",
     "dependencies": {
         "colors": "^1.4.0",
-        "inquirer": "^8.1.2",
-        "say": "^0.16.0",
-        "shelljs": "^0.8.4",
-        "svgo": "^2.4.0",
-        "yargs": "^17.0.1",
         "exif": "^0.6.0",
         "ffprobe": "^1.1.2",
         "ffprobe-static": "^3.0.0",
+        "fluent-ffmpeg": "^2.1.2",
+        "imagemin": "^8.0.1",
+        "inquirer": "^8.1.2",
+        "jszip": "^3.7.1",
         "piexifjs": "^1.0.6",
-        "pify": "^5.0.0"
+        "pify": "^5.0.0",
+        "say": "^0.16.0",
+        "shelljs": "^0.8.4",
+        "svgo": "^2.4.0",
+        "yargs": "^17.0.1"
     }
 }
