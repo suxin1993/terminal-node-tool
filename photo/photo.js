@@ -33,7 +33,7 @@ async function photo() {
         return '路径下不存在jpg文件'
     } else {
         for (let index = 0; index < list.length; index++) {
-            const e = array[index];
+            const e = list[index];
             console.log(`${e}文件已经转化`.bold.blue);
         }
         //获取exif信息
