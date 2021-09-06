@@ -1,14 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2021-02-26 17:09:20
- * @LastEditTime: 2021-08-31 15:08:34
+ * @LastEditTime: 2021-09-06 21:21:56
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \getPictureLocation\gaodeLocation.js
  */
 const config = require('../lib/lib-photo.json');
 
-const {getHttp,addUrlParams} =require("../http/http")
+const { getHttp, addUrlParams } = require("../http/http")
 //Gps坐标转为高德坐标(GPS坐标与火星坐标的转换)
 let GPS = {
     PI: 3.14159265358979324,
@@ -62,8 +62,8 @@ let GPS = {
         return ret;
     }
 };
-exports.GPS=GPS
-      
+exports.GPS = GPS
+
 // 坐标转换 度°分′秒″转度
 function ToDigital(strDu, strFen, strMiao, len) {
     len = (len > 6 || typeof(len) == "undefined") ? 6 : len; //精确到小数点后最多六位   
@@ -78,7 +78,7 @@ function ToDigital(strDu, strFen, strMiao, len) {
     }
 }
 
-exports.ToDigital=ToDigital
+exports.ToDigital = ToDigital
 
 // 坐标转换 度转度°分′秒″
 function ToDegrees(val) {
@@ -104,19 +104,19 @@ function ToDegrees(val) {
     }
     return strDu + "," + strFen + "," + strMiao;
 }
-exports.ToDegrees=ToDegrees
+exports.ToDegrees = ToDegrees
 
 let url = `https://restapi.amap.com/v3/geocode/regeo`
-async function getGaodeAdress(lon,lat) {
-     url   = addUrlParams(url,{
-        location:`${110.41967},${26.91667}`,
-        key:`${config.GaodeKey}`
-     })
-   const JSONLocation = await getHttp(url)
-   let JsonString = JSONLocation.substring(JSONLocation.indexOf(']') + 1, JSONLocation.length)
-   // 字符串截取
-   console.error(JsonString)
-   return  JSON.parse(JsonString)
+async function getGaodeAdress(lon, lat) {
+    url = addUrlParams(url, {
+        location: `${lon},${lat}`,
+        key: `${config.GaodeKey}`
+    })
+    const JSONLocation = await getHttp(url)
+    let JsonString = JSONLocation.substring(JSONLocation.indexOf(']') + 1, JSONLocation.length)
+    // 字符串截取
+    console.error(JsonString)
+    return JSON.parse(JsonString)
 }
 
-exports.getGaodeAdress=getGaodeAdress
+exports.getGaodeAdress = getGaodeAdress

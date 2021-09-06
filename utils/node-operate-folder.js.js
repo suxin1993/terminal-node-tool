@@ -52,13 +52,64 @@ exports.delFile = async function(dir, fileName) {
     })
 }
 
+
+
+/**
+ * 重命名
+ * @param  {string} renameoldpath 
+ * @param  {string} renamenewpath 
+ */
+let renamePath = async function(renameoldpath, renamenewpath) {
+    return new Promise((res, rej) => {
+        fs.rename(renameoldpath, renamenewpath, (err) => {
+            if (err) {
+                rej(err)
+            }
+            res()
+        });
+    })
+}
+exports.renamePath = renamePath
+
+/**
+ * 删除文件夹，包括非空文件夹
+ * @param  {string} Folderpath 文件名 
+ */
+let delFolder = async function(Folderpath) {
+    return new Promise((res, rej) => {
+        function deleteFolderRecursive(Folderpath) {
+            console.error("sss")
+            console.error(Folderpath)
+            if (fs.existsSync(Folderpath)) {
+                console.error("sss")
+                fs.readdirSync(Folderpath).forEach(function(file) {
+                    let curPath = Folderpath + "/" + file;
+                    if (fs.statSync(curPath).isDirectory()) { // recurse
+                        deleteFolderRecursive(curPath);
+                    } else { // delete file
+                        fs.unlinkSync(curPath);
+                    }
+                });
+                fs.rmdirSync(Folderpath);
+            }
+        };
+        deleteFolderRecursive(Folderpath)
+        setTimeout(() => {
+            res()
+        }, 5000)
+
+    })
+}
+exports.delFolder = delFolder
+
 /**
  * 获取完整文件路径
  * @param  {string} fileName 文件名 file.mtl
  */
-exports.getFullFileName = function(dir, fileName) {
+let getFullFileName = function(dir, fileName) {
     return paths.join(dir, fileName);
 }
+exports.getFullFileName = getFullFileName
 
 /**
  * 相对路径获取绝对路径
@@ -99,6 +150,26 @@ let findSync = function(startPath) {
     return result;
 }
 exports.findSync = findSync
+
+//读取文件夹,获得文件夹中的文件列表
+let findSyncAllStatus = function(startPath) {
+    const result = {};
+
+    function finder(path) {
+        const files = fs.readdirSync(path);
+        files.forEach((val) => {
+            const fPath = paths.join(path, val);
+            const stats = fs.statSync(fPath);
+            if (stats.isDirectory()) finder(fPath);
+            if (stats.isFile()) result[fPath] = Object.assign(stats, {
+                'fpath': fPath
+            })
+        });
+    }
+    finder(startPath);
+    return result;
+}
+exports.findSyncAllStatus = findSyncAllStatus
 
 /* 判断文件存在 */
 exports.isFileExisted = async function(path_way) {
@@ -158,6 +229,8 @@ let getStat = async function(path) {
     })
 }
 exports.getStat = getStat
+
+
 
 
 
@@ -238,6 +311,22 @@ exports.getbaseFiles = function(url, ext) {
     }
     return extList
 }
+/**
+ * 获取某个相对路径下所有为某类扩展名的文件名
+ * getbaseTypeFiles('./', '[vue,svg,jpg]')
+ * @param {string} dir 路径
+ */
+
+exports.getbaseTypeFiles = function(url, ext) {
+    let list = findSyncAllStatus(url)
+    let extList = []
+    for (const key in list) {
+        if (ext.includes(pathExtname(pathBasename(key)))) {
+            extList.push(key)
+        }
+    }
+    return extList
+}
 
 /**
  * 逐行读取
@@ -285,6 +374,14 @@ exports.exitsFolder = async function(reaPath) {
         return false
         // 不存在文件夹，直接创建 {recursive: true} 这个配置项是配置自动创建多个文件夹
         // await fs.promises.mkdir(absPath, {recursive: true})
+    }
+}
+exports.exitsFolderSync = function(reaPath) {
+    try {
+        let abc = fs.statSync(reaPath)
+        return true
+    } catch (e) {
+        return false
     }
 }
 
