@@ -1,5 +1,5 @@
 require("colors");
-const { pathJoinDir, exitsFolder, getbaseTypeFiles, writeFileAsync, readFile, getStat, renamePath, pathExtname, parsePath } = require("../utils/node-operate-folder.js")
+const { pathJoinDir, exitsFolder, getbaseTypeFiles, writeFileAsync, readFile, getStat, renamePath, pathExtname, pathBasefilename, parsePath } = require("../utils/node-operate-folder.js")
 let filepath = pathJoinDir(__dirname, './')
 
 const { getGaodeAdress, ToDigital, GPS } = require("./gaodeLocation")
@@ -9,7 +9,7 @@ const utils = require("../utils/utils")
 /*
  * @Author: your name
  * @Date: 2021-02-26 16:18:04
- * @LastEditTime: 2021-09-07 12:57:14
+ * @LastEditTime: 2021-09-07 13:46:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \getPictureLocation\main.js
@@ -53,9 +53,7 @@ function fomtWexin(value, types) {
         const type = types[index];
         if (value.indexOf(type) != -1) {
             let time = value.substring(type.length, value.length)
-            let sTime = utils.formatTime(time.valueOf(), 'yyyy.MM.dd-hh时mm分ss秒')
-            console.log(value + '微信名字时间' + sTime)
-            return sTime
+            return time
         }
     }
     return false
@@ -79,10 +77,16 @@ async function photo() {
             let exifFileDate = {}
             let ext = pathExtname(e)
             let parePath = parsePath(e)
+            let oldName = pathBasefilename(e)
             if (Shooting == 0) {
                 Shooting = await getStat(e)
                 Shooting = new Date(Shooting.mtime).valueOf()
                 console.log('文件的修改时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
+            }
+            let wexinTime = fomtWexin(oldName, ['mmexport', 'wx_camera_', ])
+            if (wexinTime) {
+                Shooting = wexinTime
+                console.log(oldName + '微信名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
             }
             try {
                 //获取exif信息
