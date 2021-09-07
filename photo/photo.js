@@ -1,5 +1,5 @@
 require("colors");
-const { pathJoinDir, exitsFolder, getbaseTypeFiles, writeFileAsync, readFile } = require("../utils/node-operate-folder.js")
+const { pathJoinDir, exitsFolder, getbaseTypeFiles, writeFileAsync, readFile ,getStat} = require("../utils/node-operate-folder.js")
 let filepath = pathJoinDir(__dirname, './')
 
 const { getGaodeAdress, ToDigital, GPS } = require("./gaodeLocation")
@@ -62,26 +62,25 @@ function fomtWexin(value, types) {
     }
     return false
 }
-let addInforesp = 'noAddress'
-let Make = 'noDevice'
-let incident = '无事件'
-let Stime = "无时间"
-async function photo() {
-    await isPathSure()
 
+let mapName={}
+async function photo() {  
+    await isPathSure()
     let list = getbaseTypeFiles(filepath, [".jpg", ".jpeg"])
     if (list.length == 0) {
         console.log(`路径下不存在jpg文件`.bold.red);
         return '路径下不存在jpg文件'
     } else {
         for (let index = 0; index < list.length; index++) {
+            let addInforesp = 'noAddress'
+            let Make = 'noDevice'
+            let incident = 'noPeople'
+            let Stime = "无时间"
             const e = list[index];
             try {
                 //获取exif信息
                 let exifFileDate = await getExifInfo(e)
                 try {
-                    console.error(typeof(exifFileDate))
-                    console.error(exifFileDate.image)
                     if (exifFileDate.image.ModifyDate) {
                         const TimesT = new Date(reBackTime(exifFileDate.image.ModifyDate))
                         Stime = utils.formatTime(TimesT.valueOf(), 'yyyy.MM.dd-hh时mm分ss秒')
@@ -103,7 +102,9 @@ async function photo() {
                     ret = GPS.gcj_encrypt(+exifFileDate.gps.lat, +exifFileDate.gps.lon); // 函数返回转换后的高德坐标
                     console.error(ret)
                     // 获取地理位置
-                    await getGaodeAdress(ret.lon, ret.lat)
+                    let JsonString=await getGaodeAdress(ret.lon, ret.lat)
+                    addInforesp = JsonString.regeocode.formatted_address
+
                 } catch (error) {
                     addInforesp = '无GPS'
                     console.log(error)
@@ -112,7 +113,25 @@ async function photo() {
             } catch (error) {
                 console.log(`${e}文件不存在exif信息`.bold.red);
             }
-            console.log(`${e}文件已经转化`.bold.blue);
+            if(Stime=="无时间"){
+                Stime=await getStat(e)
+                Stime=utils.formatTime(new Date(Stime.mtime).valueOf(), 'yyyy.MM.dd-hh时mm分ss秒')
+                console.log('修改时间:' + Stime)
+            }
+            if (process.argv[4]) {
+                // 并且是汉字
+                incident = process.argv[4]
+            }
+            let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+            console.error(newFileRamaparsed)
+            if( mapName.hasOwnProperty(newFileRamaparsed)){
+                 console.log(`重复的时间: ${ Stime }`.bold.red)
+            }else{
+                mapName[newFileRamaparsed]=true
+            }
+           
+            
+            
         }
         // 判断是否重复
         return '路径下的jpg文件已经开始转化'

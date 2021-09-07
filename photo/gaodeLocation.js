@@ -106,8 +106,9 @@ function ToDegrees(val) {
 }
 exports.ToDegrees = ToDegrees
 
-let url = `https://restapi.amap.com/v3/geocode/regeo`
+
 async function getGaodeAdress(lon, lat) {
+    let url = `https://restapi.amap.com/v3/geocode/regeo`
     url = addUrlParams(url, {
         location: `${lon},${lat}`,
         key: `${config.GaodeKey}`
@@ -115,7 +116,7 @@ async function getGaodeAdress(lon, lat) {
     const JSONLocation = await getHttp(url)
     let JsonString = JSONLocation.substring(JSONLocation.indexOf(']') + 1, JSONLocation.length)
     // 字符串截取
-    console.error(JsonString)
+    // console.error(JsonString)
     return JSON.parse(JsonString)
 }
 
