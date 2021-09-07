@@ -9,7 +9,7 @@ const utils = require("../utils/utils")
 /*
  * @Author: your name
  * @Date: 2021-02-26 16:18:04
- * @LastEditTime: 2021-09-07 13:57:13
+ * @LastEditTime: 2021-09-07 15:02:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \getPictureLocation\main.js
@@ -58,6 +58,29 @@ function fomtWexin(value, types) {
     }
     return false
 }
+// remove 删除 removeold
+async function removeold(e) {
+    let ext = pathExtname(e)
+    let parePath = parsePath(e)
+    let oldName = pathBasefilename(e)
+    if (oldName.indexOf('oldname') !== -1) {
+        let newFileName = oldName.substring(oldName.indexOf('oldname') + 8, oldName.length)
+        let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
+        await renamePath(e, newFile)
+    }
+}
+
+// reback 还原 reback 
+async function reback(e) {
+    let ext = pathExtname(e)
+    let parePath = parsePath(e)
+    let oldName = pathBasefilename(e)
+    if (oldName.indexOf('oldname') !== -1) {
+        let newFileName = oldName.substring(0, oldName.indexOf('oldname') - 1)
+        let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
+        await renamePath(e, newFile)
+    }
+}
 
 let mapName = {}
 async function photo() {
@@ -78,15 +101,27 @@ async function photo() {
             let ext = pathExtname(e)
             let parePath = parsePath(e)
             let oldName = pathBasefilename(e)
+            if (process.argv[4]) {
+                // 并且是汉字
+                if (process.argv[4] == 'removeold') {
+                    removeold(e)
+                    continue
+                }
+                if (process.argv[4] == 'reback') {
+                    reback(e)
+                    continue
+                }
+                incident = process.argv[4]
+            }
             if (Shooting == 0) {
                 Shooting = await getStat(e)
                 Shooting = new Date(Shooting.mtime).valueOf()
-                console.log('文件的修改时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
+                console.log('文件的修改时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
             }
             let wexinTime = fomtWexin(oldName, ['mmexport', 'wx_camera_', ])
             if (wexinTime) {
                 Shooting = wexinTime
-                console.log(oldName + '微信名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
+                console.log(oldName + '微信名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
             }
             try {
                 //获取exif信息
@@ -98,10 +133,10 @@ async function photo() {
 
                 if (exifFileDate.image.ModifyDate) {
                     Shooting = new Date(reBackTime(exifFileDate.image.ModifyDate)).valueOf()
-                    console.log('拍摄时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
+                    console.log('拍摄时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
                 } else if (exifFileDate.exif.DateTimeOriginal) {
                     Shooting = new Date(reBackTime(exifFileDate.exif.DateTimeOriginal)).valueOf()
-                    console.log('拍摄时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
+                    console.log('拍摄时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
                 }
                 if (exifFileDate.image.Make) {
                     exifFileDate.image.Make = clearString(exifFileDate.image.Make);
@@ -121,30 +156,28 @@ async function photo() {
                 addInforesp = '无GPS'
                 console.log(`${e}文件不存在GPS信息`.bold.red);
             }
-
-
-            if (process.argv[4]) {
-                // 并且是汉字
-                incident = process.argv[4]
-            }
             Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
-            let newFileRamaparsed = `${oldName}]oldname-${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+            let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
             if (mapName.hasOwnProperty(newFileRamaparsed)) {
                 console.log(`重复的时间: ${ Stime }`.bold.red)
                 const randomEntryTime = Math.floor(Math.random() * 45000 + 15000)
                 Shooting = Shooting + randomEntryTime
                 Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
                 console.log(`修改后的时间: ${ Stime }`.bold.red)
-                newFileRamaparsed = `${oldName}]oldname-${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
                 mapName[newFileRamaparsed] = true
             } else {
                 mapName[newFileRamaparsed] = true
             }
-
+            let addOldnewFileRamaparsed = `${oldName}]oldname-${newFileRamaparsed}`
             // // 修改名字
-            let newFileName = pathJoinDir(parePath, `${newFileRamaparsed}${ext}`)
+            let newFileName = pathJoinDir(parePath, `${addOldnewFileRamaparsed}${ext}`)
             console.error(newFileName)
-            await renamePath(e, newFileName)
+            if (oldName.indexOf('oldname') !== -1) {
+                console.log(`${e}文件名存在oldname，不修改`.bold.red);
+            } else {
+                await renamePath(e, newFileName)
+            }
         }
         // 判断是否重复
         return '路径下的jpg文件已经开始转化'
