@@ -1,14 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2021-09-02 11:29:17
- * @LastEditTime: 2021-09-06 18:37:58
+ * @LastEditTime: 2021-09-07 12:38:58
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /terminal-node-tool/photo/exif.js
  */
 
 let ExifImage = require('exif').ExifImage;
-let exifInfo = new ExifImage
 
 
 /**

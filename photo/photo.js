@@ -1,5 +1,5 @@
 require("colors");
-const { pathJoinDir, exitsFolder, getbaseTypeFiles, writeFileAsync, readFile ,getStat} = require("../utils/node-operate-folder.js")
+const { pathJoinDir, exitsFolder, getbaseTypeFiles, writeFileAsync, readFile, getStat, renamePath, pathExtname, parsePath } = require("../utils/node-operate-folder.js")
 let filepath = pathJoinDir(__dirname, './')
 
 const { getGaodeAdress, ToDigital, GPS } = require("./gaodeLocation")
@@ -9,7 +9,7 @@ const utils = require("../utils/utils")
 /*
  * @Author: your name
  * @Date: 2021-02-26 16:18:04
- * @LastEditTime: 2021-09-06 21:24:13
+ * @LastEditTime: 2021-09-07 12:57:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \getPictureLocation\main.js
@@ -49,10 +49,8 @@ function clearString(s) {
 }
 // 判断是否为微信,并且进行截取
 function fomtWexin(value, types) {
-
     for (let index = 0; index < types.length; index++) {
         const type = types[index];
-        console.log(type)
         if (value.indexOf(type) != -1) {
             let time = value.substring(type.length, value.length)
             let sTime = utils.formatTime(time.valueOf(), 'yyyy.MM.dd-hh时mm分ss秒')
@@ -63,8 +61,8 @@ function fomtWexin(value, types) {
     return false
 }
 
-let mapName={}
-async function photo() {  
+let mapName = {}
+async function photo() {
     await isPathSure()
     let list = getbaseTypeFiles(filepath, [".jpg", ".jpeg"])
     if (list.length == 0) {
@@ -76,62 +74,73 @@ async function photo() {
             let Make = 'noDevice'
             let incident = 'noPeople'
             let Stime = "无时间"
+            let Shooting = 0
             const e = list[index];
+            let exifFileDate = {}
+            let ext = pathExtname(e)
+            let parePath = parsePath(e)
+            if (Shooting == 0) {
+                Shooting = await getStat(e)
+                Shooting = new Date(Shooting.mtime).valueOf()
+                console.log('文件的修改时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
+            }
             try {
                 //获取exif信息
-                let exifFileDate = await getExifInfo(e)
-                try {
-                    if (exifFileDate.image.ModifyDate) {
-                        const TimesT = new Date(reBackTime(exifFileDate.image.ModifyDate))
-                        Stime = utils.formatTime(TimesT.valueOf(), 'yyyy.MM.dd-hh时mm分ss秒')
-                        console.log('拍摄时间:' + Stime)
-                    } else if (exifFileDate.exif.DateTimeOriginal) {
-                        const TimesT = new Date(reBackTime(exifFileDate.exif.DateTimeOriginal))
-                        Stime = utils.formatTime(TimesT.valueOf(), 'yyyy.MM.dd-hh时mm分ss秒')
-                        console.log('拍摄时间:' + Stime)
-                    }
-                    if (exifFileDate.image.Make) {
-                        exifFileDate.image.Make = clearString(exifFileDate.image.Make);
-                        exifFileDate.image.Model = clearString(exifFileDate.image.Model)
-                        Make = `${exifFileDate.image.Make}-${exifFileDate.image.Model}`
-                        console.log(Make)
-                    }
-                    exifFileDate.gps.lat = ToDigital(exifFileDate.gps.GPSLatitude[0], exifFileDate.gps.GPSLatitude[1], exifFileDate.gps.GPSLatitude[2])
-                    exifFileDate.gps.lon = ToDigital(exifFileDate.gps.GPSLongitude[0], exifFileDate.gps.GPSLongitude[1], exifFileDate.gps.GPSLongitude[2])
-                    // exifFileDate.image.ModifyDate
-                    ret = GPS.gcj_encrypt(+exifFileDate.gps.lat, +exifFileDate.gps.lon); // 函数返回转换后的高德坐标
-                    console.error(ret)
-                    // 获取地理位置
-                    let JsonString=await getGaodeAdress(ret.lon, ret.lat)
-                    addInforesp = JsonString.regeocode.formatted_address
-
-                } catch (error) {
-                    addInforesp = '无GPS'
-                    console.log(error)
-                    console.log(`${e}文件不存在GPS信息`.bold.red);
-                }
+                exifFileDate = await getExifInfo(e)
             } catch (error) {
                 console.log(`${e}文件不存在exif信息`.bold.red);
             }
-            if(Stime=="无时间"){
-                Stime=await getStat(e)
-                Stime=utils.formatTime(new Date(Stime.mtime).valueOf(), 'yyyy.MM.dd-hh时mm分ss秒')
-                console.log('修改时间:' + Stime)
+            try {
+
+                if (exifFileDate.image.ModifyDate) {
+                    Shooting = new Date(reBackTime(exifFileDate.image.ModifyDate)).valueOf()
+                    console.log('拍摄时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
+                } else if (exifFileDate.exif.DateTimeOriginal) {
+                    Shooting = new Date(reBackTime(exifFileDate.exif.DateTimeOriginal)).valueOf()
+                    console.log('拍摄时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒'))
+                }
+                if (exifFileDate.image.Make) {
+                    exifFileDate.image.Make = clearString(exifFileDate.image.Make);
+                    exifFileDate.image.Model = clearString(exifFileDate.image.Model)
+                    Make = `${exifFileDate.image.Make}-${exifFileDate.image.Model}`
+                }
+                exifFileDate.gps.lat = ToDigital(exifFileDate.gps.GPSLatitude[0], exifFileDate.gps.GPSLatitude[1], exifFileDate.gps.GPSLatitude[2])
+                exifFileDate.gps.lon = ToDigital(exifFileDate.gps.GPSLongitude[0], exifFileDate.gps.GPSLongitude[1], exifFileDate.gps.GPSLongitude[2])
+                // exifFileDate.image.ModifyDate
+                ret = GPS.gcj_encrypt(+exifFileDate.gps.lat, +exifFileDate.gps.lon); // 函数返回转换后的高德坐标
+                // 获取地理位置
+                let JsonString = await getGaodeAdress(ret.lon, ret.lat)
+                addInforesp = JsonString.regeocode.formatted_address
+                console.error(addInforesp)
+
+            } catch (error) {
+                addInforesp = '无GPS'
+                console.log(`${e}文件不存在GPS信息`.bold.red);
             }
+
+
             if (process.argv[4]) {
                 // 并且是汉字
                 incident = process.argv[4]
             }
+            Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
             let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
-            console.error(newFileRamaparsed)
-            if( mapName.hasOwnProperty(newFileRamaparsed)){
-                 console.log(`重复的时间: ${ Stime }`.bold.red)
-            }else{
-                mapName[newFileRamaparsed]=true
+            if (mapName.hasOwnProperty(newFileRamaparsed)) {
+                console.log(`重复的时间: ${ Stime }`.bold.red)
+                const randomEntryTime = Math.floor(Math.random() * 45000 + 15000)
+                Shooting = Shooting + randomEntryTime
+                Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
+                console.log(`修改后的时间: ${ Stime }`.bold.red)
+                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+                mapName[newFileRamaparsed] = true
+            } else {
+                mapName[newFileRamaparsed] = true
             }
-           
-            
-            
+
+            // // 修改名字
+            let newFileName = pathJoinDir(parePath, `${newFileRamaparsed}${ext}`)
+            console.error(newFileName)
+            await renamePath(e, newFileName)
         }
         // 判断是否重复
         return '路径下的jpg文件已经开始转化'
