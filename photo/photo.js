@@ -9,7 +9,7 @@ const utils = require("../utils/utils")
 /*
  * @Author: your name
  * @Date: 2021-02-26 16:18:04
- * @LastEditTime: 2021-09-07 13:46:17
+ * @LastEditTime: 2021-09-07 13:57:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \getPictureLocation\main.js
@@ -128,14 +128,14 @@ async function photo() {
                 incident = process.argv[4]
             }
             Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
-            let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+            let newFileRamaparsed = `${oldName}]oldname-${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
             if (mapName.hasOwnProperty(newFileRamaparsed)) {
                 console.log(`重复的时间: ${ Stime }`.bold.red)
                 const randomEntryTime = Math.floor(Math.random() * 45000 + 15000)
                 Shooting = Shooting + randomEntryTime
                 Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
                 console.log(`修改后的时间: ${ Stime }`.bold.red)
-                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+                newFileRamaparsed = `${oldName}]oldname-${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
                 mapName[newFileRamaparsed] = true
             } else {
                 mapName[newFileRamaparsed] = true
