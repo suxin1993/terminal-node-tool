@@ -38,7 +38,7 @@ util photo 路径 （默认为./photo）
 ###  通过imageMin 的jpegtran 与pngquant去压缩图片  也可以用images，但是只能用压缩jpeg
 
 
-###   获取exif信息  看 ffprobe ffprobe-static  inquirer  piexifjs  pify
+###   获取exif信息  看 ffprobe ffprobe-static  inquirer  piexifjs 
 
 
 ###   fluent-ffmpeg通过ffmpeg转化视频  ffmpeg
