@@ -99,6 +99,7 @@ class Upload{
         let thumbnailWidth = 200;
 
         // 照片压缩并生成缩略图
+        // pipe的管道是异步进程
         if(ext === 'jpeg' || ext === 'jpg') {
           reader.pipe(sharp().rotate().resize(thumbnailWidth)).pipe(writeThumbStream);
           reader.pipe(sharp().pipe(writeFileStream))
