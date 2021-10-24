@@ -3,6 +3,7 @@ const path = require('path');
 const sharp = require('sharp');
 const staticPath =  '/upload/';
 const rootPath = path.join(process.cwd(), '/static/', staticPath);
+const photoPeople = require('../../photo/photo-people')
 
 class Upload{
 
@@ -66,13 +67,19 @@ class Upload{
     }
     return status;
   }
-  async renameFile(file) {
+  async renameFile(file,text) {
     const fileDir = rootPath 
     let ext = this.getFileExt(file.name);
     const oldpath =path.join(fileDir, file.name )
    
    
     fs.renameSync(file.path,oldpath)
+    // 需要修改photo
+    setTimeout(()=>{
+      let selectPeople = []
+      selectPeople[0]=oldpath
+      photoPeople(selectPeople,text)
+    },1000)  
   }
   async putFile(file, text) {
     const date = this.getYMD();
