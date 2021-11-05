@@ -71,9 +71,15 @@ class Upload{
     const fileDir = rootPath 
     let ext = this.getFileExt(file.name);
     const oldpath =path.join(fileDir, file.name )
-   
-   
-    fs.renameSync(file.path,oldpath)
+   //导致修改时间不正确
+    let readStream=fs.createReadStream(file.path);
+ let writeStream=fs.createWriteStream(oldpath);
+ readStream.pipe(writeStream);
+ readStream.on('end',function(){
+ fs.unlinkSync(file.path);
+ });
+//  
+    // fs.renameSync(file.path,oldpath)
     // 需要修改photo
     setTimeout(()=>{
       let selectPeople = []
