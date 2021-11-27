@@ -85,7 +85,7 @@ async function reback(e) {
 let mapName = {}
 async function photo() {
     await isPathSure()
-    let list = getbaseTypeFiles(filepath, [".jpg", ".jpeg", ".JPG"])
+    let list = getbaseTypeFiles(filepath, [".jpg", ".jpeg", ".JPG",".JPEG"])
     if (list.length == 0) {
         console.log(`路径下不存在jpg文件`.bold.red);
         return '路径下不存在jpg文件'
