@@ -81,6 +81,17 @@ async function reback(e) {
         await renamePath(e, newFile)
     }
 }
+// replace 替换名字 replace
+async function replace(e) {
+    let ext = pathExtname(e)
+    let parePath = parsePath(e)
+    let oldName = pathBasefilename(e)
+    if (oldName.indexOf(process.argv[5]) !== -1) {
+        let newFileName = oldName.replace(process.argv[5], process.argv[6])
+        let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
+        await renamePath(e, newFile)
+    }
+}
 
 let mapName = {}
 async function photo() {
@@ -109,6 +120,10 @@ async function photo() {
                 }
                 if (process.argv[4] == 'reback') {
                     reback(e)
+                    continue
+                }
+                if (process.argv[4] == 'replace') {
+                    replace(e)
                     continue
                 }
                 incident = process.argv[4]
