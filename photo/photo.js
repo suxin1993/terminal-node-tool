@@ -96,7 +96,7 @@ async function replace(e) {
 let mapName = {}
 async function photo() {
     await isPathSure()
-    let list = getbaseTypeFiles(filepath, [".jpg", ".jpeg", ".JPG",".JPEG"])
+    let list = getbaseTypeFiles(filepath, [".jpg", ".jpeg", ".JPG",".JPEG",".png",".PNG"])
     if (list.length == 0) {
         console.log(`路径下不存在jpg文件`.bold.red);
         return '路径下不存在jpg文件'
