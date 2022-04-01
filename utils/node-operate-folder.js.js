@@ -61,6 +61,11 @@ exports.delFile = async function(dir, fileName) {
  */
 let renamePath = async function(renameoldpath, renamenewpath) {
     return new Promise((res, rej) => {
+        if(fs.existsSync(renamenewpath)){
+            console.log('存在同样的文件名，暂不修改')
+            // rej('存在同样的文件名，暂不修改')
+            return
+        }
         fs.rename(renameoldpath, renamenewpath, (err) => {
             if (err) {
                 rej(err)
