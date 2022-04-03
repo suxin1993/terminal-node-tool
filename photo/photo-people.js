@@ -1,5 +1,5 @@
 require("colors");
-const { pathJoinDir, exitsFolder, getbaseTypeFiles, writeFileAsync, readFile, getStat, renamePath, pathExtname, pathBasefilename, parsePath } = require("../utils/node-operate-folder.js")
+const { pathJoinDir, exitsFolder, getbaseTypeFiles, writeFileAsync, readFile, getStat, renamePath, pathExtname,pathBasename, pathBasefilename, parsePath } = require("../utils/node-operate-folder.js")
 let filepath = pathJoinDir(__dirname, './')
 
 const { getGaodeAdress, ToDigital, GPS } = require("./gaodeLocation")
@@ -56,6 +56,27 @@ async function removeold(e) {
         await renamePath(e, newFile)
     }
 }
+async function move(e) {
+   console.log('move')
+   console.log(e)
+   const oldNames= pathBasename(e)
+   let parePath = parsePath(parsePath(parsePath(parsePath(parsePath(parsePath(parsePath(e)))))))
+   let myname =e.split('-pe[')[1].split(']-ad')[0]
+   if(process.argv[5]){
+       myname=process.argv[5]
+   }
+   //判断是否存在这个文件夹
+   let newPath =  pathJoinDir(pathJoinDir(pathJoinDir(pathJoinDir(parePath,'[2020.6.5]已经备份'),'[2005-至今]照片-视频-上传'),'人物'),myname)
+   console.error(newPath)
+   if(await exitsFolder(newPath)){
+       console.error('存在')
+       let newFile = pathJoinDir(newPath, oldNames)
+       await renamePath(e, newFile)
+       console.error(newFile)
+   }else{
+       console.error("不存在文件夹")
+   }
+}
 
 // reback 还原 reback 
 async function reback(e) {
@@ -72,17 +93,19 @@ async function reback(e) {
 async function replace(e) {
     let ext = pathExtname(e)
     let parePath = parsePath(e)
-    let oldName = pathBasefilename(e)
+    let oldName = pathBasename(e)  //pathBasefilename
+    console.log(`替换前: ${ oldName }`.bold.blue)
     if (oldName.indexOf(process.argv[5]) !== -1) {
         let newFileName = oldName.replace(process.argv[5], process.argv[6])
-        let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
+        let newFile = pathJoinDir(parePath, `${newFileName}`)
+        console.log(`替换前: ${ newFile }`.bold.yellow)
         await renamePath(e, newFile)
     }
 }
 
 let mapName = {}
 async function photo(list,photoName) {
-    if (list.length == 0) {
+  if (list.length == 0) {
         console.log(`路径下不存在jpg文件`.bold.red);
         return '路径下不存在jpg文件'
     } else {
@@ -109,6 +132,10 @@ async function photo(list,photoName) {
                 }
                 if (process.argv[4] == 'replace') {
                     replace(e)
+                    continue
+                }
+                if (process.argv[4] == 'move') {
+                    move(e)
                     continue
                 }
                 incident = process.argv[4]
@@ -161,10 +188,11 @@ async function photo(list,photoName) {
             }
             Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
             let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+            // TODO:重复获取
+            const editName=()=>{}
             if (mapName.hasOwnProperty(newFileRamaparsed)) {
-                console.log(`重复的时间: ${ Stime }`.bold.red)
-                const randomEntryTime = Math.floor(Math.random() * 45000 + 15000)
-                Shooting = Shooting + randomEntryTime
+                console.log(`重复的时间: ${ Stime }`.bold.yellow)
+                Shooting = Shooting + Math.floor(Math.random() * 45000 + 15000)
                 Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
                 console.log(`修改后的时间: ${ Stime }`.bold.red)
                 newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
@@ -180,6 +208,8 @@ async function photo(list,photoName) {
                 console.log(`${e}文件名存在oldname，不修改`.bold.red);
             } else {
                 await renamePath(e, newFileName)
+                console.error('进入这里')
+                move(newFileName)
             }
         }
         // 判断是否重复
