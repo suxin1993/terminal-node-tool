@@ -69,6 +69,9 @@ async function removeold(e) {
         await renamePath(e, newFile)
     }
 }
+async function oneStep(e) {
+   
+}
 async function move(e) {
    console.log('move')
    console.log(e)
@@ -81,7 +84,7 @@ async function move(e) {
    //判断是否存在这个文件夹
    let newPath =  pathJoinDir(pathJoinDir(parePath,'人物'),myname)
    console.error(newPath)
-   if(exitsFolder(newPath)){
+   if(await exitsFolder(newPath)){
        console.error('存在')
        let newFile = pathJoinDir(newPath, oldNames)
        await renamePath(e, newFile)
@@ -135,6 +138,7 @@ async function photo() {
             let ext = pathExtname(e)
             let parePath = parsePath(e)
             let oldName = pathBasefilename(e)
+            let oneStep = false
             if (process.argv[4]) {
                 // 并且是汉字
                 if (process.argv[4] == 'removeold') {
@@ -154,6 +158,10 @@ async function photo() {
                     continue
                 }
                 incident = process.argv[4]
+                if(process.argv[4]=='oneStep'){
+                    incident= process.argv[5]
+                    oneStep=true
+                }
             }
             if (Shooting == 0) {
                 Shooting = await getStat(e)
@@ -215,11 +223,17 @@ async function photo() {
             let addOldnewFileRamaparsed = `${oldName}]oldname-${newFileRamaparsed}`
             // // 修改名字
             let newFileName = pathJoinDir(parePath, `${addOldnewFileRamaparsed}${ext}`)
+            if(oneStep){
+                newFileName= pathJoinDir(parePath, `${newFileRamaparsed}${ext}`)
+            }
             console.error(newFileName)
             if (oldName.indexOf('oldname') !== -1) {
                 console.log(`${e}文件名存在oldname，不修改`.bold.red);
             } else {
                 await renamePath(e, newFileName)
+                if(oneStep){
+                    move(newFileName)
+                }
             }
         }
         // 判断是否重复
