@@ -203,6 +203,10 @@ async function photo() {
                 Shooting = oldName
                 console.log(oldName + 'QQ名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
             }
+            if (oldName.replace(/[^0-9]/gi, '').toString().length == 13) {
+                Shooting = oldName.replace(/[^0-9]/gi, '')
+                console.log(oldName + '任意名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+            }
             let wexinTime = fomtWexin(oldName, ['mmexport', 'wx_camera_'])
             if (wexinTime) {
                 Shooting = wexinTime
