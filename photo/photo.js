@@ -140,7 +140,7 @@ async function movePhone(e) {
     Shootings = new Date(Shootings.mtime).valueOf()
     console.log('文件的修改时间:' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
     let newFileName = `mmexport${Shootings}`
-    let newFile = pathJoinDir(parePath, `${newFileName}`)
+    let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
     console.log(`替换后: ${newFile}`.bold.yellow)
     await renamePath(e, newFile)
 }
