@@ -139,6 +139,26 @@ async function movePhone(e) {
     let Shootings = await getStat(e)
     Shootings = new Date(Shootings.mtime).valueOf()
     console.log('文件的修改时间:' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+    if (oldName.toString().length == 13 && parseInt(oldName)) {
+        console.log(oldName + 'QQ名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+        return
+    }
+    if (oldName.match(/\d{13}/)) {
+        console.log(oldName + '任意名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+        return
+    }
+    let wexinTime = fomtWexin(oldName, ['mmexport', 'wx_camera_'])
+    if (wexinTime) {
+        console.log(oldName + '微信名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+        return
+    }
+    try {
+        //获取exif信息
+        exifFileDate = await getExifInfo(e)
+        return
+    } catch (error) {
+        console.log(`${e}文件不存在exif信息`.bold.red)
+    }
     let newFileName = `mmexport${Shootings}`
     let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
     console.log(`替换后: ${newFile}`.bold.yellow)
