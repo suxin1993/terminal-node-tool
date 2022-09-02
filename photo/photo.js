@@ -9,6 +9,7 @@ const {
     renamePath,
     pathExtname,
     pathBasename,
+    getParseDir,
     pathBasefilename,
     parsePath,
 } = require('../utils/node-operate-folder.js')
@@ -218,7 +219,7 @@ async function photo() {
                     oneStep = true
                 }
                 if (process.argv[4] == 'folder') {
-                    incident = process.argv[5]
+                    incident = getParseDir(e)
                 }
             }
             if (Shooting == 0) {
