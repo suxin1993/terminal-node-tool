@@ -217,6 +217,9 @@ async function photo() {
                     incident = process.argv[5]
                     oneStep = true
                 }
+                if (process.argv[4] == 'folder') {
+                    incident = process.argv[5]
+                }
             }
             if (Shooting == 0) {
                 Shooting = await getStat(e)
