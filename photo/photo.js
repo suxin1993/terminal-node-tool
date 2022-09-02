@@ -79,6 +79,7 @@ async function removeold(e) {
     if (oldName.indexOf('oldname') !== -1) {
         let newFileName = oldName.substring(oldName.indexOf('oldname') + 8, oldName.length)
         let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
+        console.log(`替换后: ${newFile}`.bold.blue)
         await renamePath(e, newFile)
     }
 }
