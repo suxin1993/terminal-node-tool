@@ -105,6 +105,25 @@ async function move(e) {
         console.error('不存在文件夹')
     }
 }
+async function moveFolder(e) {
+    console.log('moveFolder')
+    console.log(e)
+    const oldNames = pathBasename(e)
+    let parePath = parsePath(parsePath(parsePath(e)))
+    let myname = getParseDir(e)
+
+    //判断是否存在这个文件夹
+    let newPath = pathJoinDir(pathJoinDir(parePath, '人物'), myname)
+    console.error(newPath)
+    if (await exitsFolder(newPath)) {
+        console.error('存在')
+        let newFile = pathJoinDir(newPath, oldNames)
+        await renamePath(e, newFile)
+        console.error(newFile)
+    } else {
+        console.error('不存在文件夹')
+    }
+}
 
 // reback 还原 reback
 async function reback(e) {
@@ -208,6 +227,10 @@ async function photo() {
                 }
                 if (process.argv[4] == 'move') {
                     move(e)
+                    continue
+                }
+                if (process.argv[4] == 'moveFolder') {
+                    moveFolder(e)
                     continue
                 }
                 if (process.argv[4] == 'movePhone') {
