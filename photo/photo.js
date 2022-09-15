@@ -143,6 +143,11 @@ async function replace(e) {
     let oldName = pathBasename(e) //pathBasefilename
     console.log(`替换前: ${oldName}`.bold.blue)
     if (oldName.indexOf(process.argv[5]) !== -1) {
+        if (process.argv[7]) {
+            if (oldName.indexOf(process.argv[7]) == -1) {
+                return
+            }
+        }
         let newFileName = oldName.replace(process.argv[5], process.argv[6])
         let newFile = pathJoinDir(parePath, `${newFileName}`)
         console.log(`替换后: ${newFile}`.bold.yellow)
