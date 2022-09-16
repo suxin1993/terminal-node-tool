@@ -10,6 +10,7 @@ const {
     pathExtname,
     pathBasename,
     getParseDir,
+    findDirNumber,
     pathBasefilename,
     parsePath,
 } = require('../utils/node-operate-folder.js')
@@ -98,6 +99,8 @@ async function move(e) {
     console.error(newPath)
     if (await exitsFolder(newPath)) {
         console.error('存在')
+        let DirNumber = findDirNumber(newPath)
+        console.log(`${newPath}文件夹内文件数量：${DirNumber}`.bold.yellow)
         let newFile = pathJoinDir(newPath, oldNames)
         await renamePath(e, newFile)
         console.error(newFile)
@@ -117,6 +120,8 @@ async function moveFolder(e) {
     console.error(newPath)
     if (await exitsFolder(newPath)) {
         console.error('存在')
+        let DirNumber = findDirNumber(newPath)
+        console.log(`${newPath}文件夹内文件数量：${DirNumber}`.bold.yellow)
         let newFile = pathJoinDir(newPath, oldNames)
         await renamePath(e, newFile)
         console.error(newFile)

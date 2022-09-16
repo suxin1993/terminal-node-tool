@@ -179,6 +179,13 @@ let findSyncAllStatus = function (startPath) {
 }
 exports.findSyncAllStatus = findSyncAllStatus
 
+//读取文件夹，获取文件夹的文件数量
+let findDirNumber = function (path) {
+    const files = fs.readdirSync(path)
+    return files.length
+}
+exports.findDirNumber = findDirNumber
+
 /* 判断文件存在 */
 exports.isFileExisted = async function (path_way) {
     return new Promise((resolve, reject) => {
