@@ -159,6 +159,26 @@ async function replace(e) {
         await renamePath(e, newFile)
     }
 }
+//抽取oldName中的年月日
+async function replaceOldName(oldName, Shootings) {
+    let Years = '0000'
+    let Months = '00'
+    let Days = '00'
+    if (oldName.indexOf('年') !== -1) {
+        Years = oldName.split('年')[0]
+        Months = oldName.split('年')[1].split('月')[0]
+        Days = oldName.split('年')[1].split('月')[1].split('日')[0]
+        if (Number(Months) < 10 && Months.length < 2) {
+            Months = 0 + 'Months'
+        }
+        if (Number(Days) < 10 && Days.length < 2) {
+            Days = 0 + 'Days'
+        }
+    }
+    console.log('文件的原本时间:' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+    console.log('文件的适配后的时间:' + Years + '.' + Months + '.' + Days + '-' + utils.formatTime(Shootings, 'hh时mm分ss秒').bold.blue)
+    return Years + '.' + Months + '.' + Days + '-' + utils.formatTime(Shootings, 'hh时mm分ss秒')
+}
 
 //movePhone 添加修改时间到名字上面
 async function movePhone(e) {
@@ -318,6 +338,10 @@ async function photo() {
                 mapName[newFileRamaparsed] = true
             } else {
                 mapName[newFileRamaparsed] = true
+            }
+            if (oldName.indexOf('年') !== -1) {
+                console.log(`${e}文件名存在年，需要根据文件名修改`.bold.red)
+                replaceOldName(oldName, Shooting)
             }
             let addOldnewFileRamaparsed = `${oldName}]oldname-${newFileRamaparsed}`
             // // 修改名字
