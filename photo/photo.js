@@ -160,7 +160,7 @@ async function replace(e) {
     }
 }
 //抽取oldName中的年月日
-async function replaceOldName(oldName, Shootings) {
+function replaceOldName(oldName, Shootings) {
     let Years = '0000'
     let Months = '00'
     let Days = '00'
