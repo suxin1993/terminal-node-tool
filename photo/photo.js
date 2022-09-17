@@ -192,10 +192,11 @@ async function changeTimeOne(e) {
     Time = Time.replace('-', ' ')
     Time = Time.replace('时', ':')
     Time = Time.replace('分', ':')
+    Time = Time.replace('秒', ' ')
     console.log(Time)
     let newTime = new Date(Time).valueOf() + 60000
     let newFileName = ChangeTimeTwo.replace(ChangeTime.substring(0, 20), utils.formatTime(newTime, 'yyyy.MM.dd-hh时mm分ss秒'))
-    let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
+    let newFile = pathJoinDir(parePath, `${newFileName}`)
     console.log(`替换后: ${newFile}`.bold.yellow)
     await renamePath(e, newFile)
 }
