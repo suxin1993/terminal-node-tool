@@ -180,6 +180,27 @@ function replaceOldName(oldName, Shootings) {
     return Years + '.' + Months + '.' + Days + '-' + utils.formatTime(Shootings, 'hh时mm分ss秒')
 }
 
+//changeTimeOne 修改时间多一秒
+async function changeTimeOne(e) {
+    let ext = pathExtname(e)
+    let parePath = parsePath(e)
+    let oldName = pathBasename(e) //pathBasefilename
+    console.log(`替换前: ${oldName}`.bold.blue)
+    let ChangeTime = oldName
+    let ChangeTimeTwo = oldName
+    let Time = oldName.substring(0, 20)
+    Time = Time.replace('-', ' ')
+    Time = Time.replace('时', ':')
+    Time = Time.replace('分', ':')
+    Time = Time.replace('秒', ':')
+    console.log(Time)
+    let newTime = new Date(Time).valueOf() + 60000
+    let newFileName = ChangeTimeTwo.replace(ChangeTime.substring(0, 20), utils.formatTime(newTime, 'yyyy.MM.dd-hh时mm分ss秒'))
+    let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
+    console.log(`替换后: ${newFile}`.bold.yellow)
+    await renamePath(e, newFile)
+}
+
 //movePhone 添加修改时间到名字上面
 async function movePhone(e) {
     let ext = pathExtname(e)
@@ -260,6 +281,10 @@ async function photo() {
                 }
                 if (process.argv[4] == 'movePhone') {
                     movePhone(e)
+                    continue
+                }
+                if (process.argv[4] == 'changeTimeOne') {
+                    changeTimeOne(e)
                     continue
                 }
                 incident = process.argv[4]
