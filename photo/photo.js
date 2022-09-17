@@ -169,10 +169,10 @@ async function replaceOldName(oldName, Shootings) {
         Months = oldName.split('年')[1].split('月')[0]
         Days = oldName.split('年')[1].split('月')[1].split('日')[0]
         if (Number(Months) < 10 && Months.length < 2) {
-            Months = 0 + 'Months'
+            Months = 0 + Months
         }
         if (Number(Days) < 10 && Days.length < 2) {
-            Days = 0 + 'Days'
+            Days = 0 + Days
         }
     }
     console.log('文件的原本时间:' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
