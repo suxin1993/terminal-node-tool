@@ -190,11 +190,6 @@ async function movePhone(e) {
     let Shootings = await getStat(e)
     Shootings = new Date(Shootings.mtime).valueOf()
     console.log('文件的修改时间:' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
-    if (oldName.toString().length == 13 && parseInt(oldName)) {
-        Shootings = oldName
-        console.log(oldName + 'QQ名字中的时间' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
-        return
-    }
     if (oldName.match(/\d{13}/)) {
         Shootings = oldName.match(/\d{13}/)[0]
         console.log(oldName + '任意名字中的时间' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
@@ -280,10 +275,6 @@ async function photo() {
                 Shooting = await getStat(e)
                 Shooting = new Date(Shooting.mtime).valueOf()
                 console.log('文件的修改时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
-            }
-            if (oldName.toString().length == 13 && parseInt(oldName)) {
-                Shooting = oldName
-                console.log(oldName + 'QQ名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
             }
             if (oldName.match(/\d{13}/)) {
                 Shooting = oldName.match(/\d{13}/)[0]
