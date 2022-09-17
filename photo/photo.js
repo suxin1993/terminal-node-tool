@@ -341,7 +341,8 @@ async function photo() {
             }
             if (oldName.indexOf('年') !== -1) {
                 console.log(`${e}文件名存在年，需要根据文件名修改`.bold.red)
-                replaceOldName(oldName, Shooting)
+                Stime = replaceOldName(oldName, Shooting)
+                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
             }
             let addOldnewFileRamaparsed = `${oldName}]oldname-${newFileRamaparsed}`
             // // 修改名字
