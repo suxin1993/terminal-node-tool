@@ -2,7 +2,7 @@
  * @Author: suben 18565641627@163.com
  * @Date: 2022-12-26 14:52:44
  * @LastEditors: suben 18565641627@163.com
- * @LastEditTime: 2022-12-26 15:51:40
+ * @LastEditTime: 2022-12-26 22:08:34
  * @FilePath: \terminal-node-tool\csv\testJson.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -46,6 +46,7 @@ const createBaseEndTemp = `
  * @return {*}
  */
 const createHtmlFileAll = (list) => {
+    console.error(list.length)
     let strMain = ''
     for (let index = 0; index < list.length; index++) {
         const element = list[index]
