@@ -9,8 +9,6 @@ class QueryTicket {
         this.prev = {} // 记录上一个车次信息 用于查找票数是否有变化
         this.timer = null // 定时器
         this.interval = 60000 // 查询的间隔 单位毫秒 默认60秒
-        this.logger = true // 开启终端输出日志
-
         this.init()
     }
 
@@ -110,13 +108,11 @@ class QueryTicket {
                 littleTail = '余票数量发生了变化，邮件已发送'
                 this.upDatePrevData(data)
             }
-            // console.error(this.fromTo)
-            // if (!this.logger) return false
-            console.log(
-                `${this.fromTo} 车次：${trainNo} 出发时间：${config.date}-${startTime} 到达时间：${
-                    config.date
-                }-${endTime}  软卧：${rw} 软座：${rz} 无座：${wz} 硬卧：${yw} 二等座：${edz}  一等座：${ydz} 商务座：${swz} 当前时间：${new Date().toLocaleString()}`
-            )
+            // console.log(
+            //     `${this.fromTo} 车次：${trainNo} 出发时间：${config.date}-${startTime} 到达时间：${
+            //         config.date
+            //     }-${endTime}  软卧：${rw} 软座：${rz} 无座：${wz} 硬卧：${yw} 二等座：${edz}  一等座：${ydz} 商务座：${swz} 当前时间：${new Date().toLocaleString()}`
+            // )
             if (edz != '0' && edz != '无') {
                 let content1 = `${this.fromTo} 车次：${trainNo}出发时间：${config.date}-${startTime} 到达时间：${
                     config.date
@@ -127,7 +123,7 @@ class QueryTicket {
             if (yw != '0' && yw != '无') {
                 let content2 = `${this.fromTo} 硬卧车次：${trainNo} 出发时间：${config.date}-${startTime} 到达时间：${
                     config.date
-                }-${endTime}   硬卧：票数${yw}1张 当前时间：${new Date().toLocaleString()} `
+                }-${endTime}   硬卧：票数${yw}张 当前时间：${new Date().toLocaleString()} `
                 console.log(content2)
                 this.sendMail(data, content2)
             }
