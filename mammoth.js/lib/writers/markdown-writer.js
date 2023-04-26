@@ -2,7 +2,9 @@ var _ = require("underscore");
 
 
 function symmetricMarkdownElement(end) {
-    return markdownElement(end, end);
+    return function() {
+        return {start: end, end: end};
+    };
 }
 
 function markdownElement(start, end) {
@@ -94,6 +96,7 @@ function markdownWriter() {
     var elementStack = [];
     var list = null;
     var listItem = {};
+    var fontStyle = [];
     
     function open(tagName, attributes) {
         attributes = attributes || {};
@@ -102,17 +105,14 @@ function markdownWriter() {
             return {};
         };
         var element = createElement(attributes, list, listItem);
-        console.error(element)
         elementStack.push({end: element.end, list: list});
 
         if (element.list) {
             list = element.list;
         }
-        console.error(tagName)
         //如果包含
-        let font = ''
+        let font = undefined
         if(attributes.style){
-           console.error(attributes.style)
            let styleArray=attributes.style.split(";")
            let styleObject ={}
            for (let index = 0; index < styleArray.length; index++) {
@@ -122,18 +122,32 @@ function markdownWriter() {
                     styleObject[key.trim()] = value.trim();
                 }
            } 
-           if(styleObject['font-size']&&styleObject['font-size']>12){
-             
+        //    <font  face="黑体" color=green size=5>我是黑体，绿色，尺寸为5</font>
+           if(styleObject['font-size']&&parseInt(styleObject['font-size'])>12){
+              font=`<font  size=${parseInt(styleObject['font-size'])-12}>`
+              if(styleObject['color']){
+                font=`<font  size=${parseInt(styleObject['font-size'])-12} color=${styleObject['color']}>`
+              }
+              fontStyle.push(font)
+           }else if(styleObject['color']){
+             font=`<font  color=${styleObject['color']}>`
+             fontStyle.push(font)
            }
-           if(styleObject['color']){
-             
-           }
-      
+
+           //斜线
+           if (styleObject['text-decoration']) {
+            }
+            //backColor
+            if (styleObject['background-color']) {
+            }
         }
       
         var anchorBeforeStart = element.anchorPosition === "before";
         if (anchorBeforeStart) {
             writeAnchor(attributes);
+        }
+        if(font) {
+            fragments.push(font);
         }
 
         fragments.push(element.start || "");
@@ -149,12 +163,14 @@ function markdownWriter() {
     }
     
     function close(tagName,attributes) {
-        console.error(tagName)
         var element = elementStack.pop();
         list = element.list;
         var end = _.isFunction(element.end) ? element.end() : element.end;
-        // console.error(end)
-        fragments.push(end || "");     
+        fragments.push(end || "");   
+        if(fontStyle&&fontStyle.length>=1){
+            fontStyle.pop()
+            fragments.push('</font>');   
+        }  
     }
     
     function selfClosing(tagName, attributes) {
