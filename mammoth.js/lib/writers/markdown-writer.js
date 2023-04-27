@@ -74,6 +74,7 @@ var htmlToMarkdown = {
     "ul": markdownList({isOrdered: false}),
     "ol": markdownList({isOrdered: true}),
     "li": markdownListItem,
+    "s":symmetricMarkdownElement("~~"),//删除文本 //删除线 根据标签做
     "del":symmetricMarkdownElement("~~"),//删除文本
     "strong": symmetricMarkdownElement("__"),//加粗
     "em": symmetricMarkdownElement("*"),//斜体
@@ -82,7 +83,7 @@ var htmlToMarkdown = {
 };
 
 (function() {
-    for (var i = 1; i <= 7; i++) {       
+    for (var i = 1; i <= 8; i++) {       
         htmlToMarkdown["h" + i] = markdownElement(repeatString("#", i) + " ", "\n\n");
     }
 })();
@@ -97,6 +98,7 @@ function markdownWriter() {
     var list = null;
     var listItem = {};
     var fontStyle = [];
+    var fontUnderLine= [];
     
     function open(tagName, attributes) {
         attributes = attributes || {};
@@ -112,6 +114,7 @@ function markdownWriter() {
         }
         //如果包含
         let font = undefined
+        let underLine =undefined
         if(attributes.style){
            let styleArray=attributes.style.split(";")
            let styleObject ={}
@@ -133,13 +136,23 @@ function markdownWriter() {
              font=`<font  color=${styleObject['color']}>`
              fontStyle.push(font)
            }
-
-           //斜线
+           //下划线
            if (styleObject['text-decoration']) {
+            underLine=`<u>`
+            fontUnderLine.push(underLine)
+            
             }
             //backColor
+            //背景色解析有问题，没有解析出背景色
             if (styleObject['background-color']) {
+                console.log('解析背景色成功')
+                if(!font){
+                    font=`<font  color=${styleObject['background-color']}>`
+                    fontStyle.push(font)
+                }
             }
+            //删除线-解决
+
         }
       
         var anchorBeforeStart = element.anchorPosition === "before";
@@ -148,6 +161,9 @@ function markdownWriter() {
         }
         if(font) {
             fragments.push(font);
+        }
+        if(underLine) {
+            fragments.push(underLine);
         }
 
         fragments.push(element.start || "");
@@ -170,7 +186,11 @@ function markdownWriter() {
         if(fontStyle&&fontStyle.length>=1){
             fontStyle.pop()
             fragments.push('</font>');   
-        }  
+        } 
+        if(fontUnderLine&&fontUnderLine.length>=1) {
+            fontUnderLine.pop()
+            fragments.push('</u>');   
+        }
     }
     
     function selfClosing(tagName, attributes) {
