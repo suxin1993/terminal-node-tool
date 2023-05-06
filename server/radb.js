@@ -20,38 +20,38 @@ radb.destoryDb = function (dbName) {
 }
 
 // 插入属性
-radb.insertField = function (dbName, field, new_field, value) {
-    let file_name = dbName + '.json'
-    let db = JSON.parse(fs.readFileSync(file_name))
-    // 解构字段
-    let array = field.split('.')
-    var current = db
-    for (let i = 0; i < array.length; i++) {
-        current = current[array[i]]
-    }
-    if (current[new_field]) {
-        throw Error('该字段已经存在')
-        return false
-    } else {
-        current[new_field] = value
-        let writeStream = JSON.stringify(db)
-        fs.writeFileSync(file_name, writeStream)
-        return { status: 'success', message: '插入成功' }
-    }
+radb.insertField = function(dbName,field,new_field,value){
+	let file_name = dbName + ".json";
+	let db = JSON.parse(fs.readFileSync(file_name));
+	// 解构字段
+	let array = field.split(".");
+	var current = db;
+	for(let i = 0;i<array.length;i++){
+		current = current[array[i]];
+	}
+	if(current[new_field]){
+		throw Error("该字段已经存在");
+		return false;
+	}else{
+		current[new_field] = value;
+		let writeStream = JSON.stringify(db);
+		fs.writeFileSync(file_name,writeStream);
+		return {status:"success",message:"插入成功"};
+	}
 }
 
 // 覆盖属性
-radb.coverField = function (dbName, field, value) {
-    let file_name = dbName + '.json'
-    let db = JSON.parse(fs.readFileSync(file_name))
-    // 解构字段
-    let array = field.split('.')
+radb.coverField = function(dbName,field,value){
+	let file_name = dbName + ".json";
+	let db = JSON.parse(fs.readFileSync(file_name));
+	// 解构字段
+	let array = field.split(".");
     let currentF = {}
-    let file_user = ''
-    db['user']['suxin'] = value
-    let writeStream = JSON.stringify(db)
-    fs.writeFileSync(file_name, writeStream)
-    return { status: 'success', message: '插入成功' }
+    let file_user =''
+	db['user']['suxin'] =value
+	let writeStream = JSON.stringify(db);
+	fs.writeFileSync(file_name,writeStream);
+	return {status:"success",message:"插入成功"};
 }
 
 // 插入值
