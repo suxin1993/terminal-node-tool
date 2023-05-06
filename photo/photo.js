@@ -246,6 +246,7 @@ async function photo() {
     } else {
         for (let index = 0; index < list.length; index++) {
             let addInforesp = 'noAddress'
+            let lonOrlat = '无经纬度'
             let Make = 'noDevice'
             let incident = 'noPeople'
             let Stime = '无时间'
@@ -336,13 +337,19 @@ async function photo() {
                 // 获取地理位置
                 let JsonString = await getGaodeAdress(ret.lon, ret.lat)
                 addInforesp = JsonString.regeocode.formatted_address
+                let JsonLoctions = await getGaodeAdress(null, null, addInforesp)
+                console.error(JsonLoctions.geocodes[0].location)
+                lonOrlat = `${ret.lon}-${ret.lat}`
+                console.error(lonOrlat)
                 console.error(addInforesp)
             } catch (error) {
+                console.error(error)
+                lonOrlat = '无经纬度'
                 addInforesp = '无GPS'
-                console.log(`${e}文件不存在GPS信息`.bold.red)
+                console.log(`${e}文件获取地理位置失败信息`.bold.red)
             }
             Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
-            let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+            let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]-lon[${lonOrlat}]`
             // TODO:重复获取
             const editName = () => {}
             if (mapName.hasOwnProperty(newFileRamaparsed)) {
@@ -350,7 +357,7 @@ async function photo() {
                 Shooting = Shooting + Math.floor(Math.random() * 45000 + 15000)
                 Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
                 console.log(`修改后的时间: ${Stime}`.bold.red)
-                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]-lon[${lonOrlat}]`
                 mapName[newFileRamaparsed] = true
             } else {
                 mapName[newFileRamaparsed] = true
@@ -358,7 +365,7 @@ async function photo() {
             if (oldName.indexOf('年') !== -1) {
                 console.log(`${e}文件名存在年，需要根据文件名修改`.bold.red)
                 Stime = replaceOldName(oldName, Shooting)
-                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]-lon[${lonOrlat}]`
             }
             let addOldnewFileRamaparsed = `${oldName}]oldname-${newFileRamaparsed}`
             // // 修改名字
