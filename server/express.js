@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-09-07 16:58:57
- * @LastEditTime: 2023-05-06 22:20:39
- * @LastEditors: suben 18565641627@163.com
+ * @LastEditTime: 2023-05-07 20:30:02
+ * @LastEditors: suxin 18565641627@.163com
  * @Description: In User Settings Edit
  * @FilePath: /terminal-node-tool/server/express.js
  */
@@ -80,9 +80,24 @@ router.post(
     }
 )
 router.get(`/updateLocaltion`, function (req, res) {
+    req.query.time = new Date().toLocaleString()
+    req.query.userName = 'suxin'
+    req.query.nick_name = '粟斌'
+    req.query.model = 'iphone'
+    //先写成json，需要按照时间顺序记录到数据库中
     console.error(req.query)
-
-    res.send('请求成功')
+    let dbName = `user.${req.query.userName}` || 'user.未知'
+    let userName = req.query.userName
+    try {
+        let ab = radb.get('localtion', dbName)
+        if (ab) {
+            let result = radb.insertValue('localtion', dbName, req.query)
+            res.send(result)
+        }
+    } catch (e) {
+        let results = radb.insertField('localtion', dbName, userName, req.query)
+        res.send(results)
+    }
 })
 
 router.get(`/time`, function (req, res) {
@@ -130,12 +145,9 @@ server.listen(port, function () {
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 
-
-
 let bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-
 
 // //上传逻辑
 // const upload = multer({ dest: "uploads/" });
@@ -145,7 +157,6 @@ app.use(bodyParser.json())
 // app.get("/:filename", (req, res) => {
 //   res.sendFile(`${__dirname}/uploads/${req.params.filename}`);
 // });
-
 
 //配置
 app.all('*', function (req, res, next) {
@@ -157,12 +168,12 @@ app.all('*', function (req, res, next) {
 })
 //  /severcollectip/getAll
 // 查询所有的ip地址
-app.get('/ip/getAll', function (req, res) {
+router.get('/ip/getAll', function (req, res) {
     let result = radb.get('db', 'user.suxin')
     res.send(result)
 })
 // 插入ip地址
-app.get('/ip/address', function (req, res) {
+router.get('/ip/address', function (req, res) {
     let dbName = `user.${req.query.userName}` || 'user.未知'
     let userName = req.query.userName
     try {
@@ -178,20 +189,21 @@ app.get('/ip/address', function (req, res) {
 })
 //  /severcollectphoto/getAll
 //查询所有的照片地址
-app.get('/photo/getAll', function (req, res) {
+router.get('/photo/getAll', function (req, res) {
+    console.error('查询打印')
     let result = radb.get('photo', 'user.photo')
     res.send(result)
 })
 
 //  /severcollectdays/getAll
 // 查询所有的纪念日
-app.get('/days/getAll', function (req, res) {
+router.get('/days/getAll', function (req, res) {
     let result = radb.get('days', 'user.suxin')
     res.send(result)
 })
 //  /severcollectdays/add
 // 插入纪念日
-app.get('/days/add', function (req, res) {
+router.get('/days/add', function (req, res) {
     let dbName = 'user.suxin'
     let userName = req.query.userName
 
@@ -208,24 +220,21 @@ app.get('/days/add', function (req, res) {
 })
 //  /severcollectdays/edit
 // 修改纪念日
-app.get('/days/edit', function (req, res) {
+router.get('/days/edit', function (req, res) {
     let dbName = 'user.suxin'
     let ab = radb.get('days', dbName)
-    if(req.query.Index){
+    if (req.query.Index) {
         const Index = req.query.Index
-        req.query.Index=undefined
-        ab[Index]=  req.query
+        req.query.Index = undefined
+        ab[Index] = req.query
         console.error(ab[Index])
         let results = radb.coverField('days', dbName, ab)
         res.send(results)
-    }  
+    }
 })
 
-
 // post请求
-app.post('/myApp/delete', function (req, res) {
+router.post('/myApp/delete', function (req, res) {
     console.log(req.body.data)
     let result = radb.insertValue('db', 'user.types', req.body.data)
 })
-
-
