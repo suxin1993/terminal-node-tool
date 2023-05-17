@@ -1,22 +1,22 @@
 /*
  * @Author: your name
  * @Date: 2021-09-07 15:29:58
- * @LastEditTime: 2021-09-08 21:00:57
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-12-08 17:21:07
+ * @LastEditors: suben 18565641627@163.com
  * @Description: In User Settings Edit
  * @FilePath: /terminal-node-tool/server/koa.js
  */
 
-const Koa = require('koa');
-const router = require('koa-router')();
-const app = new Koa();
+const Koa = require('koa')
+const router = require('koa-router')()
+const app = new Koa()
 const { getIPAdress } = require('./ip')
-const port = 3050
-const fs = require('fs');
+const port = 3001
+const fs = require('fs')
 app.use(async (ctx, next) => {
     if (ctx.request.path === '/views') {
-        ctx.type = 'text/html';
-        ctx.body = fs.createReadStream('./views/index.html');
+        ctx.type = 'text/html'
+        ctx.body = fs.createReadStream('./views/index.html')
     } else if (ctx.request.path === '/post') {
         let html = `
         <h1>Koa2 request post demo</h1>
@@ -29,29 +29,32 @@ app.use(async (ctx, next) => {
             <input name='webSite' /><br/>
             <button type="submit">submit</button>
         </form>
-    `;
-        ctx.body = html;
+    `
+        ctx.body = html
     } else if (ctx.url === '/' && ctx.method === 'POST') {
-        console.error("验证post请求")
-        ctx.body = '接收到请求';
+        console.error('验证post请求')
+        ctx.body = '接收到请求'
     } else {
-        await next();
+        await next()
     }
-});
-
+})
 
 // add url-route:
 router.get('/hello/:name', async (ctx, next) => {
-    var name = ctx.params.name;
-    ctx.response.body = `<h1>Hello, ${name}!</h1>`;
-});
+    var name = ctx.params.name
+    ctx.response.body = `<h1>Hello, ${name}! koa</h1>`
+})
 
 router.get('/', async (ctx, next) => {
-    ctx.response.body = '<h1>Index</h1>';
-});
+    ctx.response.body = '<h1>Index koa</h1>'
+})
+router.get('/wde', async (ctx, next) => {
+    // ctx.response.body = '<h1>ocr koa</h1>'
+    ctx.response.body = { name: 'dddd' }
+})
 
 // add router middleware:
-app.use(router.routes());
+app.use(router.routes())
 
-app.listen(port);
+app.listen(port)
 console.log(`${getIPAdress()}:${port}`)

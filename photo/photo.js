@@ -9,6 +9,8 @@ const {
     renamePath,
     pathExtname,
     pathBasename,
+    getParseDir,
+    findDirNumber,
     pathBasefilename,
     parsePath,
 } = require('../utils/node-operate-folder.js')
@@ -78,6 +80,7 @@ async function removeold(e) {
     if (oldName.indexOf('oldname') !== -1) {
         let newFileName = oldName.substring(oldName.indexOf('oldname') + 8, oldName.length)
         let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
+        console.log(`替换后: ${newFile}`.bold.blue)
         await renamePath(e, newFile)
     }
 }
@@ -96,6 +99,29 @@ async function move(e) {
     console.error(newPath)
     if (await exitsFolder(newPath)) {
         console.error('存在')
+        let DirNumber = findDirNumber(newPath)
+        console.log(`${newPath}文件夹内文件数量：${DirNumber}`.bold.yellow)
+        let newFile = pathJoinDir(newPath, oldNames)
+        await renamePath(e, newFile)
+        console.error(newFile)
+    } else {
+        console.error('不存在文件夹')
+    }
+}
+async function moveFolder(e) {
+    console.log('moveFolder')
+    console.log(e)
+    const oldNames = pathBasename(e)
+    let parePath = parsePath(parsePath(parsePath(e)))
+    let myname = getParseDir(e)
+
+    //判断是否存在这个文件夹
+    let newPath = pathJoinDir(pathJoinDir(parePath, '人物'), myname)
+    console.error(newPath)
+    if (await exitsFolder(newPath)) {
+        console.error('存在')
+        let DirNumber = findDirNumber(newPath)
+        console.log(`${newPath}文件夹内文件数量：${DirNumber}`.bold.yellow)
         let newFile = pathJoinDir(newPath, oldNames)
         await renamePath(e, newFile)
         console.error(newFile)
@@ -122,11 +148,57 @@ async function replace(e) {
     let oldName = pathBasename(e) //pathBasefilename
     console.log(`替换前: ${oldName}`.bold.blue)
     if (oldName.indexOf(process.argv[5]) !== -1) {
+        if (process.argv[7]) {
+            if (oldName.indexOf(process.argv[7]) == -1) {
+                return
+            }
+        }
         let newFileName = oldName.replace(process.argv[5], process.argv[6])
         let newFile = pathJoinDir(parePath, `${newFileName}`)
         console.log(`替换后: ${newFile}`.bold.yellow)
         await renamePath(e, newFile)
     }
+}
+//抽取oldName中的年月日
+function replaceOldName(oldName, Shootings) {
+    let Years = '0000'
+    let Months = '00'
+    let Days = '00'
+    if (oldName.indexOf('年') !== -1) {
+        Years = oldName.split('年')[0]
+        Months = oldName.split('年')[1].split('月')[0]
+        Days = oldName.split('年')[1].split('月')[1].split('日')[0]
+        if (Number(Months) < 10 && Months.length < 2) {
+            Months = 0 + Months
+        }
+        if (Number(Days) < 10 && Days.length < 2) {
+            Days = 0 + Days
+        }
+    }
+    console.log('文件的原本时间:' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+    console.log('文件的适配后的时间:' + Years + '.' + Months + '.' + Days + '-' + utils.formatTime(Shootings, 'hh时mm分ss秒').bold.blue)
+    return Years + '.' + Months + '.' + Days + '-' + utils.formatTime(Shootings, 'hh时mm分ss秒')
+}
+
+//changeTimeOne 修改时间多一秒
+async function changeTimeOne(e) {
+    let ext = pathExtname(e)
+    let parePath = parsePath(e)
+    let oldName = pathBasename(e) //pathBasefilename
+    console.log(`替换前: ${oldName}`.bold.blue)
+    let ChangeTime = oldName
+    let ChangeTimeTwo = oldName
+    let Time = oldName.substring(0, 20)
+    Time = Time.replace('-', ' ')
+    Time = Time.replace('时', ':')
+    Time = Time.replace('分', ':')
+    Time = Time.replace('秒', ' ')
+    console.log(Time)
+    let newTime = new Date(Time).valueOf() + 60000
+    let newFileName = ChangeTimeTwo.replace(ChangeTime.substring(0, 20), utils.formatTime(newTime, 'yyyy.MM.dd-hh时mm分ss秒'))
+    let newFile = pathJoinDir(parePath, `${newFileName}`)
+    console.log(`替换后: ${newFile}`.bold.yellow)
+    await renamePath(e, newFile)
 }
 
 //movePhone 添加修改时间到名字上面
@@ -139,6 +211,25 @@ async function movePhone(e) {
     let Shootings = await getStat(e)
     Shootings = new Date(Shootings.mtime).valueOf()
     console.log('文件的修改时间:' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+    if (oldName.match(/\d{13}/)) {
+        Shootings = oldName.match(/\d{13}/)[0]
+        console.log(oldName + '任意名字中的时间' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+        return
+    }
+    let wexinTime = fomtWexin(oldName, ['mmexport', 'wx_camera_'])
+    if (wexinTime) {
+        Shootings = wexinTime
+        console.log(oldName + '微信名字中的时间' + utils.formatTime(Shootings, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+        return
+    }
+    try {
+        //获取exif信息
+        exifFileDate = await getExifInfo(e)
+        console.log(`${oldName}文件存在exif信息`.bold.red)
+        return
+    } catch (error) {
+        console.log(`${oldName}文件不存在exif信息`.bold.red)
+    }
     let newFileName = `mmexport${Shootings}`
     let newFile = pathJoinDir(parePath, `${newFileName}${ext}`)
     console.log(`替换后: ${newFile}`.bold.yellow)
@@ -155,6 +246,7 @@ async function photo() {
     } else {
         for (let index = 0; index < list.length; index++) {
             let addInforesp = 'noAddress'
+            let lonOrlat = '无经纬度'
             let Make = 'noDevice'
             let incident = 'noPeople'
             let Stime = '无时间'
@@ -184,8 +276,16 @@ async function photo() {
                     move(e)
                     continue
                 }
+                if (process.argv[4] == 'moveFolder') {
+                    moveFolder(e)
+                    continue
+                }
                 if (process.argv[4] == 'movePhone') {
                     movePhone(e)
+                    continue
+                }
+                if (process.argv[4] == 'changeTimeOne') {
+                    changeTimeOne(e)
                     continue
                 }
                 incident = process.argv[4]
@@ -193,11 +293,18 @@ async function photo() {
                     incident = process.argv[5]
                     oneStep = true
                 }
+                if (process.argv[4] == 'folder') {
+                    incident = getParseDir(e)
+                }
             }
             if (Shooting == 0) {
                 Shooting = await getStat(e)
                 Shooting = new Date(Shooting.mtime).valueOf()
                 console.log('文件的修改时间:' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
+            }
+            if (oldName.match(/\d{13}/)) {
+                Shooting = oldName.match(/\d{13}/)[0]
+                console.log(oldName + '任意名字中的时间' + utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒').bold.blue)
             }
             let wexinTime = fomtWexin(oldName, ['mmexport', 'wx_camera_'])
             if (wexinTime) {
@@ -230,13 +337,19 @@ async function photo() {
                 // 获取地理位置
                 let JsonString = await getGaodeAdress(ret.lon, ret.lat)
                 addInforesp = JsonString.regeocode.formatted_address
+                let JsonLoctions = await getGaodeAdress(null, null, addInforesp)
+                console.error(JsonLoctions.geocodes[0].location)
+                lonOrlat = `${ret.lon}-${ret.lat}`
+                console.error(lonOrlat)
                 console.error(addInforesp)
             } catch (error) {
+                console.error(error)
+                lonOrlat = '无经纬度'
                 addInforesp = '无GPS'
-                console.log(`${e}文件不存在GPS信息`.bold.red)
+                console.log(`${e}文件获取地理位置失败信息`.bold.red)
             }
             Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
-            let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+            let newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]-lon[${lonOrlat}]`
             // TODO:重复获取
             const editName = () => {}
             if (mapName.hasOwnProperty(newFileRamaparsed)) {
@@ -244,10 +357,15 @@ async function photo() {
                 Shooting = Shooting + Math.floor(Math.random() * 45000 + 15000)
                 Stime = utils.formatTime(Shooting, 'yyyy.MM.dd-hh时mm分ss秒')
                 console.log(`修改后的时间: ${Stime}`.bold.red)
-                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]`
+                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]-lon[${lonOrlat}]`
                 mapName[newFileRamaparsed] = true
             } else {
                 mapName[newFileRamaparsed] = true
+            }
+            if (oldName.indexOf('年') !== -1) {
+                console.log(`${e}文件名存在年，需要根据文件名修改`.bold.red)
+                Stime = replaceOldName(oldName, Shooting)
+                newFileRamaparsed = `${Stime}-pe[${incident}]-ad[${addInforesp}]-[${Make}]-lon[${lonOrlat}]`
             }
             let addOldnewFileRamaparsed = `${oldName}]oldname-${newFileRamaparsed}`
             // // 修改名字
