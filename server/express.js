@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-07 16:58:57
- * @LastEditTime: 2023-05-07 20:30:02
+ * @LastEditTime: 2023-05-16 21:50:01
  * @LastEditors: suxin 18565641627@.163com
  * @Description: In User Settings Edit
  * @FilePath: /terminal-node-tool/server/express.js
@@ -85,17 +85,16 @@ router.get(`/updateLocaltion`, function (req, res) {
     req.query.nick_name = '粟斌'
     req.query.model = 'iphone'
     //先写成json，需要按照时间顺序记录到数据库中
-    console.error(req.query)
     let dbName = `user.${req.query.userName}` || 'user.未知'
     let userName = req.query.userName
     try {
-        let ab = radb.get('localtion', dbName)
+        let ab = radb.get(database, dbName)
         if (ab) {
-            let result = radb.insertValue('localtion', dbName, req.query)
+            let result = radb.insertValue(database, dbName, req.query)
             res.send(result)
         }
     } catch (e) {
-        let results = radb.insertField('localtion', dbName, userName, req.query)
+        let results = radb.insertField(database, dbName, userName, req.query)
         res.send(results)
     }
 })
